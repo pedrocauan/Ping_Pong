@@ -23,6 +23,11 @@
             canvasCtx = canvasEl.getContext("2d"),
             gapX = 10;
 
+        const mouse = {
+            x: 0,
+            y: 0,
+        }
+
 
         const lineWidth = 15;
 
@@ -53,12 +58,19 @@
             x: 120,
             y: 240,
             r: 20,
+            speed: 5,
+            _move: function () {
+                this.x += this.speed;
+                this.y += this.speed;
+            },
             draw: function () {
                 //desenho da bola
                 canvasCtx.fillStyle = "ffffff";
                 canvasCtx.beginPath();
                 canvasCtx.arc(this.x, this.y, this.r, 0, 2 * Math.PI, false);
                 canvasCtx.fill();
+
+                this._move();
             }
 
         }
@@ -71,25 +83,36 @@
 
         const leftPaddle = {
             x: gapX,
-            y: 240,
+            y: field.h / 2, //inicia no meio da  altura da tela
             w: line.w,
             h: 200,
+            //move o cara da esquerda em função do mouse
+            _move: function(){
+                this.y = mouse.y
+            },
+
             draw: function () {
                 //desenho das raquetes esquerda
                 canvasCtx.fillStyle = "#ffffff";
                 canvasCtx.fillRect(this.x, this.y, this.w, this.h);
+                this._move();
             }
         }
 
         const rightPaddle = {
             x: window.innerWidth - line.w - gapX,
-            y: 240,
+            y: field.h / 2,
             w: line.w,
             h: 200,
+            _move: function(){
+                this.y = ball.y
+            },
+
             draw: function () {
                 //desenho da raquete direita
                 canvasCtx.fillStyle = "ffffff";
                 canvasCtx.fillRect(this.x, this.y, this.w, this.h);
+                this._move();
             }
         }
 
@@ -103,9 +126,34 @@
 
         }
 
-        setup();
-        draw();
 
+        //deixa  o canvas a 60 quadros por segundo
+        window.animateFrame = (function () {
+            return (
+                window.requestAnimationFrame || // chrome
+                window.webkitRequestAnimationFrame || //chrome
+                window.mozRequestAnimationFrame || // firefox
+                window.oRequestAnimationFrame || // opera
+                window.msRequestAnimationFrame || //outros
+                function (callback) {
+                    return window.setTimeout(callback, 1000 * 60)
+                }
+            );
+        })();
+
+
+        function main() {
+            animateFrame(main);
+            draw();
+        }
+
+        setup();
+        main();
+
+        canvasEl.addEventListener("mousemove", function(e){
+            mouse.x = e.pageX;
+            mouse.y = e.pageY;
+        })
     </script>
 </body>
 
